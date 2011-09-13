@@ -33,6 +33,7 @@ screensaver=xscreensaver
 mplayer_detection=0
 vlc_detection=0
 firefox_flash_detection=1
+firefox_mplayer_detection=1
 chromium_flash_detection=1
 
 # YOU SHOULD NOT NEED TO MODIFY ANYTHING BELOW THIS LINE
@@ -71,7 +72,7 @@ isAppRunning()
 
 
 
-    # Check if user want to detect Video fullscreen on Firefox, modify variable firefox_flash_detection if you dont want Firefox detection
+    # Check if user want to detect Flash Video fullscreen on Firefox, modify variable firefox_mplayer_detection if you dont want Firefox mplayer detection
     if [ $firefox_flash_detection == 1 ];then
         if [[ "$activ_win_title" = *unknown* ]];then   
         # Check if plugin-container process is running
@@ -84,7 +85,21 @@ isAppRunning()
         fi
     fi
 
-    
+
+    # Check if user want to detect gecko-mplayer Video fullscreen on Firefox, modify variable firefox_mplayer_detection if you dont want Firefox mplayer detection
+    if [ $firefox_mplayer_detection == 1 ];then
+        if [[ "$activ_win_title" = *mplayer* ]];then
+        # Check if plugin-container process is running
+            flash_process=`pgrep -l plugin-containe | grep -wc plugin-containe`
+            #(why was I using this commented line avobe? delete if pgrep -lc works ok)
+            #flash_process=`pgrep -lc plugin-containe`
+            if [[ $flash_process -ge 1 ]];then
+                return 1
+            fi
+        fi
+    fi
+
+
     # Check if user want to detect Video fullscreen on Chromium, modify variable chromium_flash_detection if you dont want Chromium detection
     if [ $chromium_flash_detection == 1 ];then
         if [[ "$activ_win_title" = *exe* ]];then   
