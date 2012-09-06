@@ -53,6 +53,8 @@ maybe_delay_screensaver () {
         if app_is_running; then
 	    $verbose && echo "delaying"
             delay_screensaver
+	else
+	    $verbose && echo "no relevant app detected"
         fi
     fi
 }
@@ -62,23 +64,28 @@ app_is_running () {
     $verbose && echo "active window title: $active_win_title"
 
     if $firefox_flash_detection && [[ x"$active_win_title" = x*unknown* || x"$active_win_title" = x*plugin-container* ]]; then
+	$verbose && echo "active win seems to firefox flash"
 	pgrep plugin-containe &>/dev/null && return 0
     fi
 
     if $firefox_mplayer_detection && [[ x"$active_win_title" = x*mplayer* || x"$active_win_title" = x*MPlayer* ]]; then
+	$verbose && echo "active win seems to firefox mplayer"
         pgrep plugin-containe &>/dev/null && return 0
     fi
 
-    if $chromium_flash_detection && [[ x"$active_win_title" = x*exe* ]]; then
+    if $chromium_flash_detection && [[ x"$active_win_title" = x*chromium* ]]; then
 	# TODO: the hardcoded path probably doesn't always work
+	$verbose && echo "active win seems to be chromium"
         pgrep -f "chromium-browser --type=plugin --plugin-path=/usr/lib/adobe-flashplugin" &>/dev/null && return 0
     fi
 
     if $mplayer_detection && [[ x"$active_win_title" = x*mplayer* || x"$active_win_title" = x*MPlayer* ]]; then
+	$verbose && echo "active win seems to mplayer"
 	pgrep mplayer &>/dev/null && return 0
     fi
     
     if $vlc_detection && [[ x"$active_win_title" = x*vlc* ]]; then
+	$verbose && echo "active win seems to vlc"
         pgrep vlc &>/dev/null && return 0
     fi    
 
