@@ -54,57 +54,73 @@ xprop_active_info () {
 }
 
 maybe_delay_screensaver () {
-    if xprop_active_info | grep -q _NET_WM_STATE_FULLSCREEN; then
+    if we_are_fullscreen; then
 	$verbose && echo "detected fullscreen"
         if app_is_running; then
-	    $verbose && echo "delaying"
+	    $verbose && echo "app is running too, delaying"
             delay_screensaver
 	else
-	    $verbose && echo "no relevant app detected"
+	    $verbose && echo "but no relevant app detected"
         fi
     fi
 }
 
+we_are_fullscreen () {
+    xprop_active_info | grep -q _NET_WM_STATE_FULLSCREEN
+}
+
 app_is_running () {
     active_win_title=$(xprop_active_info | grep "WM_CLASS(STRING)")
-    $verbose && echo "active window title: $active_win_title"
+    $verbose && echo "	active window title: $active_win_title"
 
-    if $firefox_flash_detection && [[ x"$active_win_title" = x*unknown* || x"$active_win_title" = x*plugin-container* ]]; then
-	$verbose && echo "active win seems to firefox flash"
-	pgrep plugin-containe &>/dev/null && return 0
-    fi
-
-    if $firefox_mplayer_detection && [[ x"$active_win_title" = x*mplayer* || x"$active_win_title" = x*MPlayer* ]]; then
-	$verbose && echo "active win seems to firefox mplayer"
-        pgrep plugin-containe &>/dev/null && return 0
-    fi
-
-    if $chromium_flash_detection && [[ x"$active_win_title" = x*chromium* ]]; then
-	# TODO: the hardcoded path probably doesn't always work
-	$verbose && echo "active win seems to be chromium"
-        pgrep -f "chromium-browser --type=plugin --plugin-path=/usr/lib/adobe-flashplugin" &>/dev/null && return 0
-    fi
-
-    if $mplayer_detection && [[ x"$active_win_title" = x*mplayer* || x"$active_win_title" = x*MPlayer* ]]; then
-	$verbose && echo "active win seems to mplayer"
-	pgrep mplayer &>/dev/null && return 0
+    if $mplayer_detection &&
+	[[ $active_win_title = *mplayer* || $active_win_title = *MPlayer* ]] &&
+	pgrep mplayer &>/dev/null; then
+	$verbose && echo "	active win seems to be Mplayer"
+	return 0
     fi
     
-    if $vlc_detection && [[ x"$active_win_title" = x*vlc* ]]; then
-	$verbose && echo "active win seems to vlc"
-        pgrep vlc &>/dev/null && return 0
+    if $vlc_detection &&
+	[[ $active_win_title = *vlc* ]] &&
+	pgrep vlc &>/dev/null; then
+	$verbose && echo "	active win seems to VLC"
+        return 0
     fi
 
-    if $parole_detection && [[ x"$active_win_title" = x*parole* ]]; then
-	$verbose && echo "active win seems to parole"
-        pgrep parole &>/dev/null && return 0
+    if $parole_detection &&
+	[[ $active_win_title = *parole* ]] &&
+	pgrep parole &>/dev/null; then
+	$verbose && echo "	active win seems to Parole"
+        return 0
+    fi
+
+    if $firefox_flash_detection &&
+	[[ $active_win_title = *unknown* || $active_win_title = *plugin-container* ]] &&
+	pgrep plugin-containe &>/dev/null; then
+	$verbose && echo "	active win seems to be Firefox Flash"
+	return 0
+    fi
+
+    if $firefox_mplayer_detection &&
+	[[ $active_win_title = *mplayer* || $active_win_title = *MPlayer* ]] &&
+	pgrep plugin-containe &>/dev/null; then
+	$verbose && echo "	active win seems to be Firefox Mplayer"
+        return 0
+    fi
+
+    if $chromium_flash_detection &&
+	[[ $active_win_title = *chromium* ]] &&
+	pgrep -f "chromium-browser --type=plugin --plugin-path=/usr/lib/adobe-flashplugin" &>/dev/null; then
+	# TODO: the hardcoded path probably doesn't always work
+	$verbose && echo "	active win seems to be Chromium"
+        return 0
     fi
 
     return 1
 }
 
 delay_screensaver () {
-    if [ x"$screensaver" = x"kscreensaver" ]; then
+    if [[ $screensaver = kscreensaver ]]; then
 	qdbus org.freedesktop.ScreenSaver /ScreenSaver SimulateUserActivity > /dev/null
     else
 	xscreensaver-command -deactivate > /dev/null
@@ -119,14 +135,17 @@ delay_screensaver () {
 
 
 delay=$1
-if [ -z "$delay" ]; then
+if [[ -z $delay ]]; then
     delay=50
 fi
 
-if [[ x$1 = x*[^0-9]* || x$1 = x0 ]]; then
-    echo "The argument \"$1\" is invalid, expecting a positive integer"
-    echo "Please use the time in seconds you want the checks to repeat."
-    echo "You want it to be less than the time it takes your screensaver or DPMS to activate"
+if [[ $delay = *[^0-9]* || $delay = 0 ]]; then
+    cat <<EOF
+The argument \"$delay\" is invalid, expecting a positive integer
+Please use the time in seconds you want the checks to repeat. You want
+it to be less than the time it takes your screensaver or DPMS to
+activate.
+EOF
     exit 1
 fi
 
