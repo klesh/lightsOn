@@ -12,6 +12,11 @@
 # this by default.
 # lightsOn.sh needs xscreensaver or kscreensaver to work.
 
+# Prerequisites (Debian package / Arch Linux package):
+# * pgrep (procps / procps-ng)
+# * xset (x11-server-utils / xorg-xset)
+# * xprop (x11-utils / xorg-xprop)
+
 # USAGE: Start the script with the number of seconds you want the checks
 # for fullscreen to be done. Example:
 # "./lightsOn.sh 120 &" will check every 120 seconds if e.g. Mplayer,
