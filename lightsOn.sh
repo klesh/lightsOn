@@ -30,8 +30,9 @@ screensaver=xscreensaver
 # Modify these variables if you want this script to detect if Mplayer,
 # VLC or Firefox Flash Video are Fullscreen and disable
 # xscreensaver/kscreensaver and PowerManagement.
-mplayer_detection=false
-vlc_detection=false
+mplayer_detection=true
+vlc_detection=true
+parole_detection=true
 firefox_flash_detection=true
 firefox_mplayer_detection=true
 chromium_flash_detection=true
@@ -87,7 +88,12 @@ app_is_running () {
     if $vlc_detection && [[ x"$active_win_title" = x*vlc* ]]; then
 	$verbose && echo "active win seems to vlc"
         pgrep vlc &>/dev/null && return 0
-    fi    
+    fi
+
+    if $parole_detection && [[ x"$active_win_title" = x*parole* ]]; then
+	$verbose && echo "active win seems to parole"
+        pgrep parole &>/dev/null && return 0
+    fi
 
     return 1
 }
