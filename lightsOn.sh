@@ -5,11 +5,11 @@
 # url: https://github.com/unhammer/lightsOn
 # This script is licensed under GNU GPL version 2.0 or above
 
-# Description: Bash script that prevents the screensaver and display power
-# management (DPMS) to be activated when you are watching Flash Videos
-# fullscreen on Firefox and Chromium.
-# Can detect mplayer and VLC when they are fullscreen too but I have disabled
-# this by default.
+# Description: Bash script that prevents the screensaver and display
+# power management (DPMS) to be activated when you are watching Flash
+# Videos fullscreen on Firefox and Chromium. Can also detect mplayer,
+# VLC and Parole, see the *_detection variables below.
+
 # lightsOn.sh needs xscreensaver or kscreensaver to work.
 
 # Prerequisites (Debian package / Arch Linux package):
@@ -25,7 +25,6 @@
 # your screensaver or Power Management to activate.
 # If you don't pass an argument, the checks are done every 50 seconds.
 
-
 # Set the variable `screensaver' to the screensaver you use.
 # Valid options are:
 # * xscreensaver (default)
@@ -35,7 +34,7 @@ screensaver=xscreensaver
 # Modify these variables if you want this script to detect if Mplayer,
 # VLC or Firefox Flash Video are Fullscreen and disable
 # xscreensaver/kscreensaver and PowerManagement.
-mplayer_detection=true
+mplayer_detection=false
 vlc_detection=true
 parole_detection=true
 firefox_flash_detection=true
@@ -44,6 +43,15 @@ chromium_flash_detection=true
 
 # Set to true to be verbose, false to be quiet:
 verbose=true
+
+# Note: if you're using xscreensaver and the built-in screensaver
+# disabling of mplayer (or smplayer) does not work for you, you might
+# be able to fix it by adding the line
+#
+# heartbeat-cmd="xscreensaver-command -deactivate >&- 2>&- &"
+#
+# to your ~/.mplayer/config and letting mplayer_detection=false in
+# this script.
 
 
 # YOU SHOULD NOT NEED TO MODIFY ANYTHING BELOW THIS LINE
