@@ -30,11 +30,12 @@ screensaver=xscreensaver
 # Modify these variables if you want this script to detect if Mplayer,
 # VLC or Firefox Flash Video are Fullscreen and disable
 # xscreensaver/kscreensaver and PowerManagement.
-mplayer_detection=false
-vlc_detection=false
+mplayer_detection=true
+vlc_detection=true
 firefox_flash_detection=true
 firefox_mplayer_detection=true
 chromium_flash_detection=true
+mpv_detection=true
 
 # Set to true to be verbose, false to be quiet:
 verbose=true
@@ -63,29 +64,34 @@ app_is_running () {
     active_win_title=$(xprop_active_info | grep "WM_CLASS(STRING)")
     $verbose && echo "active window title: $active_win_title"
 
+    if $mpv_detection && [[ x"$active_win_title" = x*mpv* ]]; then
+        $verbose && echo "active win seems to be mpv"
+        pgrep mpv &>/dev/null && return 0
+    fi
+
     if $firefox_flash_detection && [[ x"$active_win_title" = x*unknown* || x"$active_win_title" = x*plugin-container* ]]; then
-	$verbose && echo "active win seems to firefox flash"
-	pgrep plugin-containe &>/dev/null && return 0
+        $verbose && echo "active win seems to firefox flash"
+        pgrep plugin-containe &>/dev/null && return 0
     fi
 
     if $firefox_mplayer_detection && [[ x"$active_win_title" = x*mplayer* || x"$active_win_title" = x*MPlayer* ]]; then
-	$verbose && echo "active win seems to firefox mplayer"
+        $verbose && echo "active win seems to firefox mplayer"
         pgrep plugin-containe &>/dev/null && return 0
     fi
 
     if $chromium_flash_detection && [[ x"$active_win_title" = x*chromium* ]]; then
-	# TODO: the hardcoded path probably doesn't always work
-	$verbose && echo "active win seems to be chromium"
+        # TODO: the hardcoded path probably doesn't always work
+        $verbose && echo "active win seems to be chromium"
         pgrep -f "chromium-browser --type=plugin --plugin-path=/usr/lib/adobe-flashplugin" &>/dev/null && return 0
     fi
 
     if $mplayer_detection && [[ x"$active_win_title" = x*mplayer* || x"$active_win_title" = x*MPlayer* ]]; then
-	$verbose && echo "active win seems to mplayer"
-	pgrep mplayer &>/dev/null && return 0
+        $verbose && echo "active win seems to mplayer"
+        pgrep mplayer &>/dev/null && return 0
     fi
-    
+
     if $vlc_detection && [[ x"$active_win_title" = x*vlc* ]]; then
-	$verbose && echo "active win seems to vlc"
+        $verbose && echo "active win seems to vlc"
         pgrep vlc &>/dev/null && return 0
     fi    
 
