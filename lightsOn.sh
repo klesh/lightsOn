@@ -1,25 +1,35 @@
 #!/bin/bash
 # lightsOn.sh
 
-# Copyright (c) 2011 iye.cba at gmail com, 2012 unhammer at fsfe org
-# url: https://github.com/unhammer/lightsOn
+# Copyright (c) 2011 iye.cba at gmail com, 2012-2017 unhammer at fsfe org
+# URL: https://github.com/unhammer/lightsOn
 # This script is licensed under GNU GPL version 2.0 or above
 
-# Description: Bash script that prevents the screensaver and display power
-# management (DPMS) to be activated when you are watching Flash Videos
-# fullscreen on Firefox and Chromium.
-# Can detect mplayer and VLC when they are fullscreen too but I have disabled
-# this by default.
+# Description: Bash script that prevents the screensaver and display
+# power management (DPMS) to be activated when you are watching Flash
+# Videos fullscreen on Firefox and Chromium. Can detect mplayer and
+# VLC when they are fullscreen too. See variables ending in
+# _detection.
+
 # lightsOn.sh needs xscreensaver or kscreensaver to work.
 
 # USAGE: Start the script with the number of seconds you want the checks
 # for fullscreen to be done. Example:
-# "./lightsOn.sh 120 &" will check every 120 seconds if e.g. Mplayer,
-# VLC, Firefox or Chromium are fullscreen and delay screensaver and Power Management if so.
-# You want the number of seconds to be ~10 seconds less than the time it takes
-# your screensaver or Power Management to activate.
+#
+# ./lightsOn.sh 120
+#
+# will check every 120 seconds if e.g. Mplayer, VLC, Firefox or
+# Chromium are fullscreen and delay screensaver and Power Management
+# if so. You want the number of seconds to be some seconds less than
+# the time it takes your screensaver or Power Management to activate.
+#
 # If you don't pass an argument, the checks are done every 50 seconds.
 
+# Note: Firefox with HTML5 videos should prevent screensaver on Gnome
+# and KDE, but does not yet do the right thing under XFCE:
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1168090 and I haven't
+# yet found a good way to figure out if a fullscreen FF is playing an
+# HTML5 video or not.
 
 # Set the variable `screensaver' to the screensaver you use.
 # Valid options are:
@@ -45,7 +55,7 @@ verbose=true
 
 
 xprop_active_info () {
-    xprop -id $(xprop -root _NET_ACTIVE_WINDOW | awk '{print $5}')
+    xprop -id "$(xprop -root _NET_ACTIVE_WINDOW | awk '{print $5}')"
 }
 
 maybe_delay_screensaver () {
@@ -93,7 +103,7 @@ app_is_running () {
     if $vlc_detection && [[ x"$active_win_title" = x*vlc* ]]; then
         $verbose && echo "active win seems to vlc"
         pgrep vlc &>/dev/null && return 0
-    fi    
+    fi
 
     return 1
 }
@@ -113,10 +123,7 @@ delay_screensaver () {
 }
 
 
-delay=$1
-if [ -z "$delay" ]; then
-    delay=50
-fi
+delay=${1:-50}
 
 if [[ x$1 = x*[^0-9]* || x$1 = x0 ]]; then
     echo "The argument \"$1\" is invalid, expecting a positive integer"
